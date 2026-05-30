@@ -4,9 +4,10 @@ import { useFinanceStore } from '../store/useFinanceStore';
 const fmt = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
 
 export default function BalanceCard() {
-  const balance = useFinanceStore(s => s.getBalance());
-  const income  = useFinanceStore(s => s.getTotalIncome());
-  const expense = useFinanceStore(s => s.getTotalExpense());
+  const transactions = useFinanceStore(s => s.transactions);
+  const income  = transactions.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0);
+  const expense = transactions.filter(t => t.type === 'expense').reduce((a, t) => a + t.amount, 0);
+  const balance = income - expense;
   const savingsRate = income > 0 ? Math.round(((income - expense) / income) * 100) : 0;
 
   return (

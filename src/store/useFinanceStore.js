@@ -27,26 +27,5 @@ export const useFinanceStore = create((set, get) => ({
     save(n); return n;
   }),
 
-  getBalance:      () => get().transactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0),
-  getTotalIncome:  () => get().transactions.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0),
-  getTotalExpense: () => get().transactions.filter(t => t.type === 'expense').reduce((a, t) => a + t.amount, 0),
 
-  getByCategory: () => {
-    const map = {};
-    get().transactions.filter(t => t.type === 'expense').forEach(t => {
-      map[t.category] = (map[t.category] || 0) + t.amount;
-    });
-    return Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-  },
-
-  getMonthlyFlow: () => {
-    const map = {};
-    get().transactions.forEach(t => {
-      const month = t.date.slice(0, 7);
-      if (!map[month]) map[month] = { month, income: 0, expense: 0 };
-      if (t.type === 'income') map[month].income += t.amount;
-      else map[month].expense += t.amount;
-    });
-    return Object.values(map).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
-  },
 }));

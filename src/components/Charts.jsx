@@ -20,8 +20,26 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function Charts() {
-  const monthly    = useFinanceStore(s => s.getMonthlyFlow());
-  const byCategory = useFinanceStore(s => s.getByCategory());
+  const transactions = useFinanceStore(s => s.transactions);
+
+  const monthly = (() => {
+    const map = {};
+    transactions.forEach(t => {
+      const month = t.date.slice(0, 7);
+      if (!map[month]) map[month] = { month, income: 0, expense: 0 };
+      if (t.type === 'income') map[month].income += t.amount;
+      else map[month].expense += t.amount;
+    });
+    return Object.values(map).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
+  })();
+
+  const byCategory = (() => {
+    const map = {};
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+      map[t.category] = (map[t.category] || 0) + t.amount;
+    });
+    return Object.entries(map).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+  })();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

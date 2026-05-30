@@ -9,14 +9,15 @@ const TYPE_CONFIG = {
 };
 
 export default function InsightsPanel() {
-  const { transactions, getBalance } = useFinanceStore();
+  const transactions = useFinanceStore(s => s.transactions);
+  const balance = transactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
   const [insights, setInsights] = useState(null);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
 
   const handleGenerate = async () => {
     setLoading(true); setError(''); setInsights(null);
-    const result = await generateInsights(transactions, getBalance());
+    const result = await generateInsights(transactions, balance);
     if (!result) setError('Not enough data or something went wrong. Add more transactions and try again.');
     else setInsights(result);
     setLoading(false);
